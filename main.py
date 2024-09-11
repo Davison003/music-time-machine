@@ -2,7 +2,7 @@ import  requests, re
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-from spotipy_manager import create_playlist, search_track, add_songs_playlist
+from spotipy_manager import SpotipyManager
 BILLBOARD_URL = "https://www.billboard.com/charts/hot-100/"
 
 music_date = input("Desired date (YYYY-MM-DD): ")
@@ -20,8 +20,9 @@ if is_date_valid:
     soup = BeautifulSoup(res.text, 'html.parser')
 
     songs_elements = soup.select(selector=".o-chart-results-list-row-container")
+    spm = SpotipyManager(music_date)
 
-    create_playlist(music_date)
+    spm.create_playlist()
     songs_info = []
     for el in songs_elements:
         info_title = el.select_one("li>h3#title-of-a-story")
@@ -32,5 +33,5 @@ if is_date_valid:
 
         songs_info.append(f"{title_stripped} {artist_stripped}")
 
-    list_tracks = [search_track(song) for song in songs_info]
-    add_songs_playlist(list_tracks[:25], music_date)
+    list_tracks = [spm.search_track(song) for song in songs_info]
+    spm.add_songs_playlist(list_tracks[:25])
